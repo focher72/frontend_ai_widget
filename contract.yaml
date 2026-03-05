@@ -1,0 +1,607 @@
+openapi: 3.1.0
+info:
+  title: FastAPI AI Test Project
+  description: Стандартная структура каталогов для FastAPI проекта
+  version: 0.1.0
+servers:
+  - url: http://localhost:8001
+paths:
+  /api/v1/users/:
+    get:
+      tags:
+        - users
+      summary: Get Users
+      description: Получение списка всех пользователей
+      operationId: get_users_api_v1_users__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserRead'
+                type: array
+                title: Response Get Users Api V1 Users  Get
+    post:
+      tags:
+        - users
+      summary: Create User
+      description: Создание нового пользователя
+      operationId: create_user_api_v1_users__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/users/{user_id}:
+    get:
+      tags:
+        - users
+      summary: Get User
+      description: Получение пользователя по ID
+      operationId: get_user_api_v1_users__user_id__get
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - users
+      summary: Update User
+      description: Полное обновление пользователя
+      operationId: update_user_api_v1_users__user_id__put
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - users
+      summary: Delete User
+      description: Удаление пользователя
+      operationId: delete_user_api_v1_users__user_id__delete
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: User Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/users/{user_id}/layouts:
+    get:
+      tags:
+        - users
+      summary: Get User Layouts
+      description: Получение всех layouts пользователя
+      operationId: get_user_layouts_api_v1_users__user_id__layouts_get
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LayoutRead'
+                title: Response Get User Layouts Api V1 Users  User Id  Layouts Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+        - users
+      summary: Add Layout To User
+      description: Добавление layout пользователю
+      operationId: add_layout_to_user_api_v1_users__user_id__layouts_post
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: User Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLayoutCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLayoutResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/users/{user_id}/layouts/{layout_id}:
+    delete:
+      tags:
+        - users
+      summary: Remove Layout From User
+      description: Удаление layout у пользователя
+      operationId: remove_layout_from_user_api_v1_users__user_id__layouts__layout_id__delete
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: User Id
+        - name: layout_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Layout Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/layouts/:
+    get:
+      tags:
+        - layouts
+      summary: Get Layouts
+      description: Получение списка всех экранов
+      operationId: get_layouts_api_v1_layouts__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LayoutRead'
+                type: array
+                title: Response Get Layouts Api V1 Layouts  Get
+    post:
+      tags:
+        - layouts
+      summary: Create Layout
+      description: Создание нового экрана
+      operationId: create_layout_api_v1_layouts__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayoutCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/layouts/{layout_id}:
+    get:
+      tags:
+        - layouts
+      summary: Get Layout
+      description: Получение экрана по ID
+      operationId: get_layout_api_v1_layouts__layout_id__get
+      parameters:
+        - name: layout_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Layout Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - layouts
+      summary: Update Layout
+      description: Полное обновление экрана
+      operationId: update_layout_api_v1_layouts__layout_id__put
+      parameters:
+        - name: layout_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Layout Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayoutUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+        - layouts
+      summary: Partial Update Layout
+      description: Частичное обновление экрана
+      operationId: partial_update_layout_api_v1_layouts__layout_id__patch
+      parameters:
+        - name: layout_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Layout Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayoutUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - layouts
+      summary: Delete Layout
+      description: Удаление экрана
+      operationId: delete_layout_api_v1_layouts__layout_id__delete
+      parameters:
+        - name: layout_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Layout Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Root
+      description: Корневой эндпоинт для проверки работоспособности приложения
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /index:
+    get:
+      summary: Serve Index
+      description: Эндпоинт для доступа к веб-странице index.html
+      operationId: serve_index_index_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health Check
+      description: Эндпоинт для проверки здоровья приложения
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LayoutCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Название экрана
+        json_schema:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Json Schema
+          description: JSON схема экрана
+      type: object
+      required:
+        - name
+      title: LayoutCreate
+      description: Схема для создания нового экрана
+    LayoutRead:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Название экрана
+        json_schema:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Json Schema
+          description: JSON схема экрана
+        id:
+          type: integer
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+        - name
+        - id
+        - created_at
+        - updated_at
+      title: LayoutRead
+      description: Схема для чтения экрана
+    LayoutUpdate:
+      properties:
+        name:
+          anyOf:
+            - type: string
+              maxLength: 255
+              minLength: 1
+            - type: 'null'
+          title: Name
+          description: Название экрана
+        json_schema:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Json Schema
+          description: JSON схема экрана
+      type: object
+      title: LayoutUpdate
+      description: Схема для частичного обновления экрана
+    UserCreate:
+      properties:
+        username:
+          type: string
+          title: Username
+        email:
+          type: string
+          format: email
+          title: Email
+      type: object
+      required:
+        - username
+        - email
+      title: UserCreate
+      description: Схема для создания нового пользователя
+    UserLayoutCreate:
+      properties:
+        layout_id:
+          type: integer
+          title: Layout Id
+      type: object
+      required:
+        - layout_id
+      title: UserLayoutCreate
+      description: Схема для добавления layout пользователю
+    UserLayoutResponse:
+      properties:
+        user_id:
+          type: integer
+          title: User Id
+        layout_id:
+          type: integer
+          title: Layout Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+        - user_id
+        - layout_id
+        - created_at
+      title: UserLayoutResponse
+      description: Схема для ответа при управлении связями
+    UserRead:
+      properties:
+        username:
+          type: string
+          title: Username
+        email:
+          type: string
+          format: email
+          title: Email
+        id:
+          type: integer
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+        - username
+        - email
+        - id
+        - created_at
+        - updated_at
+      title: UserRead
+      description: Схема для чтения пользователя
+    UserUpdate:
+      properties:
+        username:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Username
+        email:
+          anyOf:
+            - type: string
+              format: email
+            - type: 'null'
+          title: Email
+      type: object
+      title: UserUpdate
+      description: Схема для обновления пользователя
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError

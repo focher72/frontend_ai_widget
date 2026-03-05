@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Canvas Editor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .header {
+            min-height: 60px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header h3 {
+            font-size: 1.2rem;
+        }
+
+        .canvas-container {
+            height: calc(100vh - 60px);
+            padding: 10px;
+            background: #ecf0f1;
+            overflow: auto;
+        }
+
+        .canvas-grid {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            display: grid;
+            gap: 10px;
+            background: white;
+            border: 2px solid #bdc3c7;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Desktop режим - полная сетка 12x12 */
+        @media (min-width: 768px) {
+            .canvas-grid {
+                grid-template-columns: repeat(12, 1fr);
+                grid-template-rows: repeat(12, minmax(50px, 1fr));
+            }
+        }
+
+        /* Tablet режим - 6 колонок */
+        @media (min-width: 576px) and (max-width: 767px) {
+            .canvas-grid {
+                grid-template-columns: repeat(6, 1fr);
+                grid-auto-rows: minmax(80px, auto);
+            }
+        }
+
+        /* Mobile режим - 3 колонки */
+        @media (max-width: 575px) {
+            .canvas-grid {
+                grid-template-columns: repeat(3, 1fr);
+                grid-auto-rows: minmax(100px, auto);
+                min-height: auto;
+            }
+        }
+
+        .widget {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            cursor: move;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+            min-height: 80px;
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .widget.dragging {
+            opacity: 0.5;
+            z-index: 1000;
+        }
+
+        .widget-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .widget-header span {
+            flex: 1;
+            word-break: break-word;
+            font-size: 0.9rem;
+        }
+
+        .widget-delete {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .widget-delete:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .widget-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .ghost-widget {
+            background: rgba(52, 152, 219, 0.3);
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .collision {
+            background: rgba(231, 76, 60, 0.3) !important;
+            border-color: #e74c3c !important;
+        }
+
+        .add-widget-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .add-widget-form input, .add-widget-form select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #bdc3c7;
+            font-size: 14px;
+        }
+
+        #jsonOutput {
+            position: fixed;
+            top: 70px;
+            right: 10px;
+            left: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            padding: 15px;
+            display: none;
+            overflow: auto;
+            z-index: 2000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        #jsonOutput pre {
+            margin: 0;
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #jsonOutput .close-json {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .screen-mode-indicator {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 575px) {
+            .header {
+                padding: 10px;
+            }
+            
+            .header h3 {
+                font-size: 1rem;
+                width: 100%;
+            }
+            
+            .add-widget-form {
+                width: 100%;
+            }
+            
+            .add-widget-form input,
+            .add-widget-form select {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+            
+            .canvas-container {
+                padding: 5px;
+            }
+            
+            #jsonOutput {
+                top: 10px;
+                right: 5px;
+                left: 5px;
+            }
+        }
+
+        /* Tablet optimizations */
+        @media (min-width: 576px) and (max-width: 767px) {
+            .header h3 {
+                font-size: 1.1rem;
+            }
+        }
+
+        .btn-sm {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        @media (max-width: 575px) {
+            .btn-sm {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3 class="m-0">Canvas Editor</h3>
+        
+        <div class="add-widget-form">
+            <input type="text" id="widgetDescription" placeholder="Название виджета">
+            <select id="widgetRows">
+                <option value="1">1 строка</option>
+                <option value="2">2 строки</option>
+                <option value="3">3 строки</option>
+                <option value="4">4 строки</option>
+            </select>
+            <select id="widgetCols">
+                <option value="1">1 колонка</option>
+                <option value="2">2 колонки</option>
+                <option value="3">3 колонки</option>
+                <option value="4">4 колонки</option>
+            </select>
+            <button class="btn btn-success btn-sm" onclick="addWidget()">Добавить</button>
+        </div>
+        
+        <button class="btn btn-primary btn-sm ms-auto" onclick="showJSON()">JSON</button>
+    </div>
+
+    <div class="canvas-container">
+        <div class="canvas-grid" id="canvas"></div>
+    </div>
+
+    <div id="jsonOutput">
+        <button class="close-json" onclick="hideJSON()">✕</button>
+        <h5>Текущая модель холста:</h5>
+        <pre id="jsonContent"></pre>
+    </div>
+
+    <div class="screen-mode-indicator" id="screenMode">Desktop</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
